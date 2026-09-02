@@ -29,7 +29,7 @@ Troque `{id}` pelo identificador da tarefa:
 ```bash
 curl -X PUT https://todolist-8ytk.onrender.com/tasks/{id} \
 	-H "Content-Type: application/json" \
-	-d '{"title":"Estudar API REST","completed":true}'
+	-d '{"title":"Estudar API REST"}'
 ```
 
 
