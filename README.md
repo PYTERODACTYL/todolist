@@ -11,7 +11,7 @@ Use o [Postman](https://www.postman.com/), o Insomnia ou o `curl` para enviar re
 ### Listar tarefas
 
 ```bash
-curl https://todolist-8ytk.onrender.com/tasks
+curl GET https://todolist-8ytk.onrender.com/tasks
 ```
 
 ### Criar uma tarefa
