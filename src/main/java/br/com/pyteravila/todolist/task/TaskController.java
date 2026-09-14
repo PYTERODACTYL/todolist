@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,11 +31,11 @@ public class TaskController {
         taskModel.setIdUser((java.util.UUID) request.getAttribute("idUser"));
 
         if(LocalDateTime.now().isAfter(taskModel.getStartAt()) || LocalDateTime.now().isAfter(taskModel.getEndAt())) {
-            return ResponseEntity.badRequest().body("A task cannot be created with a start or end date in the past.");
+            return ResponseEntity.badRequest().body("Uma tarefa não pode ser criada com uma data de início ou término no passado.");
         }
 
         if(taskModel.getStartAt().isAfter(taskModel.getEndAt())) {
-            return ResponseEntity.badRequest().body("A task cannot be created with a start date after the end date.");
+            return ResponseEntity.badRequest().body("Uma tarefa não pode ser criada com uma data de início após a data de término.");
         }
 
         return ResponseEntity.ok(taskRepository.save(taskModel));
@@ -65,5 +66,22 @@ public class TaskController {
         Utils.copyNonNullProperties(taskModel, task);
 
         return ResponseEntity.ok(this.taskRepository.save(task));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(HttpServletRequest request, @PathVariable UUID id) {
+        var idUser = (UUID) request.getAttribute("idUser");
+        var task = this.taskRepository.findById(id).orElse(null);
+
+        if (task == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (!task.getIdUser().equals(idUser)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        this.taskRepository.delete(task);
+        return ResponseEntity.noContent().build();
     }
 }

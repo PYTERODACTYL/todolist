@@ -30,14 +30,26 @@ public class FilterTaskAuth extends OncePerRequestFilter {
             }
 
             var authorization = request.getHeader("Authorization");
-            System.out.println("FilterTaskAuth: Authorization header: " + authorization);
+            if (authorization == null || !authorization.startsWith("Basic ")) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication required");
+                return;
+            }
 
-            byte[] decodedBytes = java.util.Base64.getDecoder().decode(authorization.substring("Basic ".length()).trim());
+            byte[] decodedBytes;
+            try {
+                decodedBytes = java.util.Base64.getDecoder().decode(authorization.substring("Basic ".length()).trim());
+            } catch (IllegalArgumentException exception) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid authentication");
+                return;
+            }
 
             var authString = new String(decodedBytes);
-            System.out.println("FilterTaskAuth: Decoded authorization: " + authString);
 
             String[] authParts = authString.split(":", 2);
+            if (authParts.length != 2) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid authentication");
+                return;
+            }
 
             var username = authParts[0];
             var password = authParts[1];
